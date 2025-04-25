@@ -1,43 +1,58 @@
-import React from 'react'
-import { assets } from '../assets/assets'
+import React from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import "../Styles/Footer.css";
+import mainlogo from "../assets/mainlogo.png";
 
 const Footer = () => {
   return (
-    <div className='md:mx-10'>
-      <div className='flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10  mt-40 text-sm'>
-
-        <div>
-          <img className='mb-5 w-40' src={assets.logo} alt="" />
-          <p className='w-full md:w-2/3 text-gray-600 leading-6'>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+    <motion.footer
+      className="footer-container"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.2, ease: "easeOut" }}
+      viewport={{ once: true }}
+    >
+      {/* Top Row: Logo + Text + Nav */}
+      <div className="footer-top-row">
+        <div className="footer-left">
+          <img className="footer-logo" src={mainlogo} alt="Logo" />
+          <p className="footer-text">MediBook Hospital.</p>
         </div>
 
-        <div>
-          <p className='text-xl font-medium mb-5'>COMPANY</p>
-          <ul className='flex flex-col gap-2 text-gray-600'>
-            <li>Home</li>
-            <li>About us</li>
-            <li>Delivery</li>
-            <li>Privacy policy</li>
+        <div className="footer-links">
+          <ul className="footer-list">
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about">About us</Link>
+            </li>
+            <li>
+              <Link to="/medicine">Delivery</Link>
+            </li>
+            <li>
+              <Link to="/career">Career</Link>
+            </li>
+            <li>
+              <Link to="/privacypolicy">Privacy</Link>
+            </li>
           </ul>
         </div>
-
-        <div>
-          <p className='text-xl font-medium mb-5'>GET IN TOUCH</p>
-          <ul className='flex flex-col gap-2 text-gray-600'>
-            <li>+1-212-456-7890</li>
-            <li>greatstackdev@gmail.com</li>
-          </ul>
-        </div>
-
       </div>
 
-      <div>
+      {/* Bottom Section */}
+      <motion.div
+        className="footer-bottom"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+      >
         <hr />
-        <p className='py-5 text-sm text-center'>Copyright 2024 @ Prescripto.com - All Right Reserved.</p>
-      </div>
+        <p id="footer-lastp">© 2025 Medibook.com — All Rights Reserved.</p>
+      </motion.div>
+    </motion.footer>
+  );
+};
 
-    </div>
-  )
-}
-
-export default Footer
+export default Footer;

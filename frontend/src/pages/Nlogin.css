@@ -1,0 +1,139 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: linear-gradient(135deg, #1c92d2, #f2fcfe); */
+  padding: 2rem;
+}
+
+.login-form {
+  /* background: #fff; */
+  background: linear-gradient(135deg, #1c92d2, #f2fcfe);
+  padding: 2rem 2.5rem;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  animation: floatUp 0.6s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+@keyframes floatUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0077be;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.login-subtext {
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+.login-group {
+  margin-bottom: 1.2rem;
+}
+
+.login-group label {
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+/* 🎯 Animated Input Styles */
+.animated-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: 0.3s ease;
+  position: relative;
+  animation: inputFade 0.6s ease;
+}
+
+@keyframes inputFade {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animated-input:focus {
+  border-color: #0077be;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 119, 190, 0.25);
+}
+
+/* 🎯 Animated Button Styles */
+.login-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: #0077be;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.4s ease;
+}
+
+.animated-btn {
+  animation: floatBtn 0.6s ease forwards;
+}
+
+@keyframes floatBtn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.login-btn:hover {
+  background: #005f9e;
+  transform: scale(1.05);
+  box-shadow: 0 10px 18px rgba(0, 119, 190, 0.4);
+}
+
+.login-switch {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 1rem;
+}
+
+.login-switch span {
+  color: #0077be;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.login-switch span:hover {
+  color: #005f9e;
+}

@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Pacifico&display=swap");
+
+#medi-small {
+  text-transform: uppercase;
+  font-family: "Outfit", sans-serif;
+  font-optical-sizing: auto;
+  letter-spacing: 0.5rem;
+  font-weight: 400;
+}
+
+#medibolspara {
+  font-weight: 500;
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+}
+
+.medicon-span {
+  font-family: "Pacifico", cursive;
+  font-optical-sizing: auto;
+  font-size: 30px;
+}
+/*  */
+
+.career-container {
+  width: 100%;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.career-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.career-text {
+  flex: 1;
+  min-width: 300px;
+}
+
+#care-cardhead {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+#care-cardpara {
+  font-size: 1.3rem;
+  color: #555;
+  line-height: 1.7;
+  text-align: justify;
+  word-spacing: -1px;
+}
+
+.career-image {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-cri {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .career-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .career-image {
+    margin-top: 20px;
+  }
+}
