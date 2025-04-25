@@ -1,0 +1,19 @@
+#contact-head {
+  font-family: "Playfair Display", serif;
+  font-optical-sizing: auto;
+}
+#contact-para {
+  font-family: "Playfair Display", serif;
+}
+
+.custom-arrow::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  bottom: 18px;
+  width: 0;
+  height: 0;
+  border-left: 0px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid #1a044e;
+}
