@@ -1,10 +1,12 @@
-import React, { useContext } from "react";
+// import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppContext } from "../context/AppContext";
+// import { AppContext } from "../context/AppContext";
+import CardSlider from "./TopDoctorSlider";
+
 const TopDoctors = () => {
   const navigate = useNavigate();
 
-  const { doctors } = useContext(AppContext);
+  // const { doctors } = useContext(AppContext);
 
   return (
     <div className="flex flex-col items-center gap-4 my-16 text-[#262626] md:mx-10">
@@ -15,7 +17,7 @@ const TopDoctors = () => {
         Explore our comprehensive hospital management services to streamline
         operations and enhance patient care.
       </p>
-      <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
+      {/* <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
         {doctors.slice(0, 10).map((item, index) => (
           <div
             onClick={() => {
@@ -44,16 +46,8 @@ const TopDoctors = () => {
             </div>
           </div>
         ))}
-      </div>
-      {/* <button
-        onClick={() => {
-          navigate("/service");
-          scrollTo(0, 0);
-        }}
-        className="bg-[#EAEFFF] text-gray-600 px-12 py-3 border-r-[#0b0606] rounded-full mt-10"
-      >
-        More
-      </button> */}
+      </div> */}
+      <CardSlider />
       <div className="m-4 inline-block">
         <button
           style={{ borderRadius: "50px" }}
@@ -63,7 +57,7 @@ const TopDoctors = () => {
           }}
           className="relative px-6 py-3 text-lg tracking-wide text-[#725AC1] bg-transparent border-2 border-[#725AC1] rounded-[10px] transition duration-500 ease-out hover:text-white hover:bg-gray-400  active:scale-90 shadow-[inset_0_0_0_0_#725AC1] hover:shadow-[inset_0_-100px_0_0_#725AC1]"
         >
-          More Medicine
+          View More
         </button>
       </div>
     </div>

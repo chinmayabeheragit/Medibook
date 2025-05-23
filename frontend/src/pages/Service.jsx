@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import servicel1 from "../assets/servicelogo1.jpg";
 import servicel2 from "../assets/servicelogo2.jpg";
 import servicel3 from "../assets/servicelogo3.jpg";
@@ -15,6 +16,8 @@ const serviceData = [
     },
     img: servicel3,
     reverse: false,
+    link: "/doctors/Gynecologist",
+    buttonText: "Explore Childbirth Services",
   },
   {
     text: {
@@ -23,6 +26,8 @@ const serviceData = [
     },
     img: servicel2,
     reverse: true,
+    link: "/doctors",
+    buttonText: "Meet Our Doctors",
   },
   {
     text: {
@@ -31,6 +36,8 @@ const serviceData = [
     },
     img: servicel1,
     reverse: false,
+    link: "/medicine",
+    buttonText: "Browse Pharmacy",
   },
   {
     text: {
@@ -39,6 +46,8 @@ const serviceData = [
     },
     img: servicel4,
     reverse: true,
+    link: "/beds",
+    buttonText: "Check Bed Availability",
   },
   {
     text: {
@@ -47,6 +56,8 @@ const serviceData = [
     },
     img: servicel5,
     reverse: false,
+    link: "/lab-reports",
+    buttonText: "View Lab Services",
   },
   {
     text: {
@@ -55,6 +66,8 @@ const serviceData = [
     },
     img: servicel6,
     reverse: true,
+    link: "/ambulance",
+    buttonText: "Request Ambulance",
   },
 ];
 
@@ -69,22 +82,23 @@ const fadeInRight = {
 };
 
 const imageReveal = {
-  hidden: { opacity: 0, scale: 0.8, rotate: -5 },
+  hidden: { opacity: 0, scale: 0.9, rotate: -3 },
   visible: { opacity: 1, scale: 1, rotate: 0 },
 };
 
 const Service = () => {
   return (
-    <div className="max-w-[1200px] px-4 py-12 mx-auto mt-36 overflow-hidden">
+    <div className="max-w-[1200px] px-4 py-16 mx-auto mt-36 space-y-28">
       {serviceData.map((item, index) => (
         <div
           key={index}
-          className={`flex flex-col-reverse md:flex-row ${
+          className={`flex flex-col md:flex-row ${
             item.reverse ? "md:flex-row-reverse" : ""
-          } items-center justify-between gap-10 mb-36`}
+          } items-center justify-between gap-y-12 md:gap-x-12 lg:gap-x-20`}
         >
+          {/* Text Content */}
           <motion.div
-            className="w-full text-center md:text-left"
+            className="w-full md:w-1/2"
             initial="hidden"
             whileInView="visible"
             variants={item.reverse ? fadeInRight : fadeInLeft}
@@ -94,13 +108,32 @@ const Service = () => {
             <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4 font-playfair">
               {item.text.title}
             </h2>
-            <p className="text-[1.125rem] text-gray-600 text-justify">
+            <p className="text-base md:text-[1.125rem] text-gray-600 text-justify mb-6 leading-relaxed">
               {item.text.desc}
             </p>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: false, amount: 0.2 }}
+              className={`mt-4 ${
+                item.reverse ? "md:text-right" : "md:text-left"
+              }`}
+            >
+              <Link
+                to={item.link}
+                className="inline-block px-6 py-3 text-white bg-[#183153] hover:bg-[#1e3a8a] rounded-full shadow-md font-semibold transition duration-300 ease-in-out"
+              >
+                {item.buttonText}
+              </Link>
+            </motion.div>
           </motion.div>
 
+          {/* Image Content */}
           <motion.div
-            className="w-full"
+            className="w-full md:w-1/2"
             initial="hidden"
             whileInView="visible"
             variants={imageReveal}
@@ -110,7 +143,7 @@ const Service = () => {
             <img
               src={item.img}
               alt={item.text.title}
-              className="rounded-[13px] p-1 bg-gradient-to-br from-[#f0f4ff] to-white transition-transform duration-500 ease-in-out hover:scale-105 shadow-md hover:shadow-xl"
+              className="w-full h-auto max-w-full rounded-xl p-1 bg-gradient-to-br from-[#f0f4ff] to-white shadow-md hover:shadow-xl transition-transform duration-500 ease-in-out hover:scale-105"
             />
           </motion.div>
         </div>
