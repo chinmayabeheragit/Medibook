@@ -58,15 +58,15 @@ const Medicine = () => {
             Fast, safe, and reliable. From cold & flu to chronic care — we’ve
             got you covered.
           </p>
-          <div className="medicinepage-search-container">
-            <MyMediput />
-          </div>
         </div>
         <div className="medicinepage-right-side">
           <img src={logo} alt="Healthcare" className="medicinepage-image" />
         </div>
       </div>
       {/* card */}
+      <div className="medicinepage-search-container">
+        <MyMediput />
+      </div>
       <TabsWithCards />
     </>
   );

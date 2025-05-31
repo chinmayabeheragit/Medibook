@@ -1,12 +1,12 @@
-// import React, { useContext } from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-// import { AppContext } from "../context/AppContext";
-import CardSlider from "./TopDoctorSlider";
+import { AppContext } from "../context/AppContext";
+import CardSlider from "../components/TopDoctorSlider";
 
 const TopDoctors = () => {
   const navigate = useNavigate();
 
-  // const { doctors } = useContext(AppContext);
+  const { doctors } = useContext(AppContext);
 
   return (
     <div className="flex flex-col items-center gap-4 my-16 text-[#262626] md:mx-10">
@@ -17,7 +17,7 @@ const TopDoctors = () => {
         Explore our comprehensive hospital management services to streamline
         operations and enhance patient care.
       </p>
-      {/* <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
+      <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
         {doctors.slice(0, 10).map((item, index) => (
           <div
             onClick={() => {
@@ -46,7 +46,7 @@ const TopDoctors = () => {
             </div>
           </div>
         ))}
-      </div> */}
+      </div>
       <CardSlider />
       <div className="m-4 inline-block">
         <button
