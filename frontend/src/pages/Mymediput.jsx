@@ -1,86 +1,236 @@
-import React, { useState, useRef } from "react";
-import { FiSearch, FiCamera } from "react-icons/fi";
-import Tesseract from "tesseract.js";
+import React, { useState, useRef, useEffect } from 'react';
+import Tesseract from 'tesseract.js';
+import * as cocoSsd from '@tensorflow-models/coco-ssd';
+import * as tf from '@tensorflow/tfjs';
+import '@tensorflow/tfjs-backend-webgl';
+import '@tensorflow/tfjs-backend-cpu';
+import Fuse from 'fuse.js';
+import { FiSearch, FiCamera } from 'react-icons/fi';
 
-const MyMediput = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+const knownMedicines = [
+  "Paracetamol",
+  "Azithromycin",
+  "Amoxicillin",
+  "Pinoclav-CL",
+  "Cetirizine",
+  "Ibuprofen",
+  "Metformin",
+  "Omeprazole",
+  "Aspirin",
+  // Add more known medicine names here
+];
+
+const fuse = new Fuse(knownMedicines, {
+  includeScore: true,
+  threshold: 0.4,
+  ignoreLocation: true,
+});
+
+const Mymediput = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [matchedMedicine, setMatchedMedicine] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [ocrRawText, setOcrRawText] = useState('');
   const fileInputRef = useRef(null);
+  const imgRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [model, setModel] = useState(null);
 
-  const handleCameraClick = () => {
-    fileInputRef.current.click(); // trigger hidden file input
+  useEffect(() => {
+    const loadModel = async () => {
+      await tf.setBackend('webgl');
+      await tf.ready();
+      const loadedModel = await cocoSsd.load();
+      setModel(loadedModel);
+    };
+    loadModel();
+  }, []);
+
+  const handleCameraClick = () => fileInputRef.current.click();
+
+  const preprocessImage = (file) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          // Enhance contrast & brightness for better OCR
+          ctx.filter = 'contrast(150%) brightness(110%)';
+          ctx.drawImage(img, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const d = imageData.data;
+          for (let i = 0; i < d.length; i += 4) {
+            const avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
+            d[i] = d[i + 1] = d[i + 2] = avg;
+          }
+          ctx.putImageData(imageData, 0, 0);
+
+          canvas.toBlob(resolve);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+  const drawBoxes = (detections) => {
+    if (!canvasRef.current || !imgRef.current) return;
+
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
+    detections.forEach((det) => {
+      if (det.score < 0.5) return;
+      const [x, y, w, h] = det.bbox;
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = 'lime';
+      ctx.font = '16px Arial';
+      ctx.fillText(det.class, x, y > 10 ? y - 5 : 10);
+    });
   };
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file || !model) return;
 
     setLoading(true);
+    setMatchedMedicine(null);
+    setSearchTerm('');
+    setOcrRawText('');
 
-    // OCR using Tesseract
-    Tesseract.recognize(file, "eng", {
-      logger: (m) => console.log(m), // optional: progress logs
-    })
-      .then(({ data: { text } }) => {
-        console.log("Extracted text:", text);
-        setSearchTerm(text.trim());
-        // TODO: You can call your backend search API here
-      })
-      .catch((err) => {
-        console.error("OCR Error:", err);
-        alert("Failed to extract text from image.");
-      })
-      .finally(() => {
-        setLoading(false);
-        event.target.value = ""; // reset input
+    try {
+      const blob = await preprocessImage(file);
+      imgRef.current.src = URL.createObjectURL(blob);
+
+      // OCR with whitelist for alphanumeric + dash only
+      const result = await Tesseract.recognize(blob, 'eng', {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            console.log('OCR Progress:', (m.progress * 100).toFixed(2), '%');
+          }
+        },
+        tessedit_char_whitelist:
+          'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789- ',
       });
+
+      const textRaw = result.data.text;
+      setOcrRawText(textRaw);
+
+      // Clean and normalize OCR text
+      const cleaned = textRaw
+        .trim()
+        .replace(/\n+/g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .toLowerCase();
+
+      // Fuzzy search medicine names against OCR output
+      const matches = fuse.search(cleaned);
+
+      if (matches.length > 0) {
+        setMatchedMedicine(matches[0].item);
+        setSearchTerm(matches[0].item);
+      } else {
+        setMatchedMedicine(null);
+        setSearchTerm('No known medicine found. Try a clearer image.');
+      }
+
+      // Run object detection (optional)
+      const detections = await model.detect(imgRef.current);
+      drawBoxes(detections);
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Failed to process image. Please try again.');
+    } finally {
+      setLoading(false);
+      event.target.value = ''; // reset file input
+    }
   };
 
-  const handleSearch = () => {
-    console.log("Search:", searchTerm);
-    // TODO: You can connect to your backend search API here
+  const handleSearchClick = () => {
+    alert(`Searching for medicine: ${searchTerm || 'None'}`);
   };
 
   return (
-    <div className="max-w-[1040px] mx-auto md:ml-[170px] mb-8 px-2">
-      <div className="relative flex items-center justify-between gap-2 bg-white rounded-full w-full">
+    <div className="container" style={{ maxWidth: 480, margin: 'auto', padding: 20 }}>
+      <div className="search-bar" style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search something"
-          className="flex-1 border-none bg-white outline-none text-black text-[15px] py-[18px] pl-[26px] pr-[100px] rounded-full w-full placeholder-black"
+          placeholder="Search for medicine..."
+          style={{ flexGrow: 1, padding: '8px 12px', fontSize: 16 }}
         />
-        <div className="absolute right-2 flex gap-2">
-          <button
-            onClick={handleSearch}
-            className="w-[50px] h-[50px] rounded-full bg-gradient-to-r from-[#2af598] to-[#009efd] border-0 flex items-center justify-center text-white hover:bg-[#1a1a1a] hover:shadow-lg transform hover:-translate-y-[3px] active:shadow-none active:translate-y-0 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
-          >
-            <FiSearch size={20} />
-          </button>
-          <button
-            onClick={handleCameraClick}
-            className="w-[50px] h-[50px] rounded-full bg-gradient-to-r from-[#2af598] to-[#009efd] border-0 flex items-center justify-center text-white hover:bg-[#1a1a1a] hover:shadow-lg transform hover:-translate-y-[3px] active:shadow-none active:translate-y-0 transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
-          >
-            <FiCamera size={20} />
-          </button>
-          <input
-            type="file"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </div>
+        <button onClick={handleSearchClick} title="Search">
+          <FiSearch size={24} />
+        </button>
+        <button onClick={handleCameraClick} title="Upload Image">
+          <FiCamera size={24} />
+        </button>
       </div>
 
-      {loading && (
-        <p className="text-center mt-4 text-sm text-gray-500 animate-pulse">
-          Extracting text from image...
+      <input
+        type="file"
+        accept="image/*"
+        capture="environment"
+        ref={fileInputRef}
+        onChange={handleImageUpload}
+        hidden
+      />
+
+      {loading && <p style={{ color: 'blue' }}>Processing image, please wait...</p>}
+
+      {ocrRawText && (
+        <p style={{ fontSize: 14, fontStyle: 'italic', color: '#666' }}>
+          OCR Raw Text: <br />
+          {ocrRawText}
         </p>
       )}
+
+      {matchedMedicine && (
+        <p style={{ fontWeight: 'bold', color: 'green' }}>
+          Detected Medicine: {matchedMedicine}
+        </p>
+      )}
+
+      {!matchedMedicine && searchTerm && !loading && (
+        <p style={{ fontWeight: 'bold', color: 'red' }}>{searchTerm}</p>
+      )}
+
+      <div style={{ position: 'relative', marginTop: 10 }}>
+        <img
+          ref={imgRef}
+          alt="Uploaded preview"
+          style={{ maxWidth: '100%', borderRadius: 8, boxShadow: '0 0 10px #ccc' }}
+          crossOrigin="anonymous"
+        />
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            pointerEvents: 'none',
+            borderRadius: 8,
+            width: '100%',
+            height: 'auto',
+          }}
+        />
+      </div>
     </div>
   );
 };
 
-export default MyMediput;
+export default Mymediput;
