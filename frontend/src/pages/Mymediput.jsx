@@ -48,34 +48,35 @@ const Mymediput = () => {
 
   const handleCameraClick = () => fileInputRef.current.click();
 
-  const preprocessImage = (file) =>
-    new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          // Enhance contrast & brightness for better OCR
-          ctx.filter = 'contrast(150%) brightness(110%)';
-          ctx.drawImage(img, 0, 0);
+const preprocessImage = (file) =>
+  new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.filter = 'contrast(150%) brightness(110%)';
+        ctx.drawImage(img, 0, 0);
 
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const d = imageData.data;
-          for (let i = 0; i < d.length; i += 4) {
-            const avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
-            d[i] = d[i + 1] = d[i + 2] = avg;
-          }
-          ctx.putImageData(imageData, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const d = imageData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
+          d[i] = d[i + 1] = d[i + 2] = avg;
+        }
+        ctx.putImageData(imageData, 0, 0);
 
-          canvas.toBlob(resolve);
-        };
-        img.src = e.target.result;
+        const dataURL = canvas.toDataURL(); // use base64 instead
+        resolve(dataURL);
       };
-      reader.readAsDataURL(file);
-    });
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
 
   const drawBoxes = (detections) => {
     if (!canvasRef.current || !imgRef.current) return;
